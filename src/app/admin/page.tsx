@@ -3,6 +3,8 @@ import db from "@/lib/db";
 import { createUser, deleteUser } from "@/actions/adminActions";
 import { logoutAction } from "@/actions/authActions";
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminDashboard() {
   return <AdminView />;
 }
