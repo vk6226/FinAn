@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic[email]
+motor
+python-jose[cryptography]
+passlib[bcrypt]
+pandas
+numpy
+matplotlib
+seaborn
+reportlab
+python-multipart
+python-dotenv

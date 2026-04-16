@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String   // Hashed password
+  role      String   // ADMIN, ANALYST, BANKER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reports   Report[] @relation("AnalystReports")
+  logs      Log[]
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  title     String
+  analystId String
+  companyA  String
+  companyB  String
+  dcfData   String   // JSON stringified
+  maData    String   // JSON stringified
+  status    String   @default("PENDING") // PENDING, APPROVED, DECLINED
+  comments  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  analyst   User     @relation("AnalystReports", fields: [analystId], references: [id])
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id])
+}
