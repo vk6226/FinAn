@@ -51,7 +51,7 @@ export async function GET(
 
     // 4. Render the 7-page React-PDF document to a buffer
     const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportPDF, {
+      React.createElement(ReportPDF as any, {
         report: {
           title:     report.title,
           companyA:  report.companyA,
@@ -63,14 +63,14 @@ export async function GET(
         maData,
         summary,
         charts: { dcfWaterfall, fcfBar, dealPie, epsAccretion },
-      })
+      }) as any
     );
 
     // 5. Stream back as a downloadable PDF
     const filename = `FinAn_${report.companyA}_${report.companyB}_Report.pdf`
       .replace(/[^a-zA-Z0-9_\-\.]/g, '_');
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfBuffer as any, {
       status: 200,
       headers: {
         'Content-Type':        'application/pdf',

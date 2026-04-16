@@ -134,7 +134,10 @@ async function AdminView() {
             <h3 className="section-title" style={{ fontSize: '13px' }}>
               + Create New User
             </h3>
-            <form action={createUser} style={{ display: 'flex', flexDirection: 'column' }}>
+            <form action={async (formData) => {
+              'use server'
+              await createUser(formData)
+            }} style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="input-group">
                 <label className="input-label">Full Name</label>
                 <input name="name" type="text" className="input-field" placeholder="Jane Doe" required />

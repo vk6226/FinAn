@@ -20,7 +20,7 @@ export async function generateDCFWaterfallChart(dcfData: any): Promise<Buffer> {
     -(dcfData.enterpriseValue - dcfData.equityValue),
     dcfData.equityValue,
   ];
-  const colors = values.map(v => v >= 0 ? 'rgba(41, 151, 255, 0.8)' : 'rgba(255, 69, 58, 0.8)');
+  const colors: string[] = values.map(v => v >= 0 ? 'rgba(41, 151, 255, 0.8)' : 'rgba(255, 69, 58, 0.8)');
   // Override the cumulative items with a distinct color
   colors[2] = 'rgba(48, 209, 88, 0.7)'; // Enterprise Value = sum
   colors[4] = 'rgba(48, 209, 88, 0.8)'; // Equity Value = final
