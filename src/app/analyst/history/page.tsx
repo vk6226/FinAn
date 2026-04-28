@@ -3,6 +3,7 @@ import db from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { logoutAction } from "@/actions/authActions";
 import CollaborationChat from "@/components/CollaborationChat";
+import ReportEditForm from "@/components/ReportEditForm";
 import { getCollaborationMessages } from "@/actions/collaborationActions";
 import { redirect } from "next/navigation";
 
@@ -62,7 +63,7 @@ export default async function AnalystHistoryPage({ searchParams }: { searchParam
       <main className="main-content">
         <div className="page-header animate-fade-in">
           <h1 className="text-gradient">My Reports</h1>
-          <p>Track the status of your submitted financial models and communicate with bankers.</p>
+          <p>Track your submissions. You can edit models while they are still <strong>PENDING</strong>.</p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
@@ -82,6 +83,7 @@ export default async function AnalystHistoryPage({ searchParams }: { searchParam
                     {reports.map((report) => (
                       <tr key={report.id} style={{
                         background: selectedReport?.id === report.id ? 'rgba(41, 151, 255, 0.04)' : 'transparent',
+                        borderLeft: selectedReport?.id === report.id ? '2px solid var(--accent-primary)' : '2px solid transparent',
                       }}>
                         <td style={{ fontWeight: 600 }}>{report.title}</td>
                         <td style={{ color: 'var(--text-secondary)' }}>{new Date(report.createdAt).toLocaleDateString()}</td>
@@ -93,37 +95,50 @@ export default async function AnalystHistoryPage({ searchParams }: { searchParam
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <Link href={`/analyst/history?id=${report.id}`} className="btn btn-secondary" style={{ padding: '6px 16px', fontSize: '12px' }}>
-                            View Thread
+                            View & Edit
                           </Link>
                         </td>
                       </tr>
                     ))}
-                    {reports.length === 0 && (
-                      <tr><td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>No reports submitted yet.</td></tr>
-                    )}
                   </tbody>
                 </table>
               </div>
             </div>
             
             {selectedReport && (
-              <div className="glass-panel animate-fade-in" style={{ marginTop: '24px', padding: '24px' }}>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}>Report Details: {selectedReport.title}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                   <div className="stat-card">
-                      <div className="stat-label">Model Status</div>
-                      <div className="stat-value" style={{ fontSize: '18px' }}>{selectedReport.status}</div>
-                   </div>
-                   <div className="stat-card">
-                      <div className="stat-label">Companies</div>
-                      <div className="stat-value" style={{ fontSize: '18px' }}>{selectedReport.companyA} + {selectedReport.companyB}</div>
-                   </div>
+              <div style={{ marginTop: '24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                   <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+                    {selectedReport.status === 'PENDING' ? 'Edit Financial Model' : 'Model Details (View Only)'}
+                   </h3>
+                   {selectedReport.status !== 'PENDING' && (
+                     <span className="badge badge-approved" style={{ opacity: 0.7 }}>🔒 Locked (Processed)</span>
+                   )}
                 </div>
+
+                {selectedReport.status === 'PENDING' ? (
+                  <ReportEditForm report={selectedReport} />
+                ) : (
+                  <div className="glass-panel animate-fade-in" style={{ padding: '24px' }}>
+                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div className="stat-card">
+                           <div className="stat-label">Acquirer</div>
+                           <div className="stat-value" style={{ fontSize: '18px' }}>{selectedReport.companyA}</div>
+                        </div>
+                        <div className="stat-card">
+                           <div className="stat-label">Target</div>
+                           <div className="stat-value" style={{ fontSize: '18px' }}>{selectedReport.companyB}</div>
+                        </div>
+                     </div>
+                     <p style={{ marginTop: '16px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+                       This report has been **{selectedReport.status}** by the banker and cannot be edited. If you need changes, please submit a new analysis.
+                     </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {/* Chat Sidebar */}
           <div style={{ position: 'sticky', top: '24px', height: 'fit-content' }}>
             {selectedReport && (
               <CollaborationChat 

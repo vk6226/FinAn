@@ -24,7 +24,6 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
   const dcfData = selectedReport ? JSON.parse(selectedReport.dcfData) : null;
   const maData = selectedReport ? JSON.parse(selectedReport.maData) : null;
   
-  // Fetch chat messages for selected report
   const chatMessages = selectedReport 
     ? await getCollaborationMessages(selectedReport.id)
     : [];
@@ -34,7 +33,6 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
 
   return (
     <div className="dashboard-layout">
-      {/* ── Sidebar ── */}
       <aside className="sidebar">
         <div className="sidebar-brand">
           <h2><span className="text-gradient-blue">FinAn</span></h2>
@@ -47,73 +45,48 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
           </Link>
         </nav>
         <div className="sidebar-footer">
-          <form action={logoutAction}>
-            <button className="btn btn-secondary" style={{ width: '100%', fontSize: '13px' }}>Sign Out</button>
-          </form>
+          <form action={logoutAction}><button className="btn btn-secondary" style={{ width: '100%' }}>Sign Out</button></form>
         </div>
       </aside>
 
-      {/* ── Main Content ── */}
       <main className="main-content">
         <div className="page-header animate-fade-in">
-          <h1 className="text-gradient">Review Queue</h1>
-          <p>Approve or decline financial models and analysis reports.</p>
+          <h1 className="text-gradient">Analyst Review Queue</h1>
+          <p>High-fidelity financial model verification and approval portal.</p>
         </div>
 
-        {/* ── Stat Cards ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
-          <div className="stat-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="stat-card">
             <div className="stat-label">Total Reports</div>
             <div className="stat-value">{reports.length}</div>
-            <div className="stat-meta">Submitted models</div>
           </div>
-          <div className="stat-card animate-fade-in" style={{ animationDelay: '0.15s' }}>
+          <div className="stat-card">
             <div className="stat-label">Pending Review</div>
             <div className="stat-value" style={{ color: 'var(--accent-warning)' }}>{pendingCount}</div>
-            <div className="stat-meta">Awaiting decision</div>
           </div>
-          <div className="stat-card animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="stat-card">
             <div className="stat-label">Approved</div>
             <div className="stat-value" style={{ color: 'var(--accent-success)' }}>{approvedCount}</div>
-            <div className="stat-meta">Cleared for execution</div>
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '24px' }}>
-          <div>
-            {/* ── Reports Table ── */}
-            <div className="glass-panel animate-fade-in" style={{ padding: '0', overflow: 'hidden', animationDelay: '0.25s' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Table */}
+            <div className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
               <div className="table-container" style={{ border: 'none' }}>
                 <table>
                   <thead>
-                    <tr>
-                      <th>Report Title</th>
-                      <th>Analyst</th>
-                      <th>Submitted</th>
-                      <th>Status</th>
-                      <th style={{ textAlign: 'right' }}>Actions</th>
-                    </tr>
+                    <tr><th>Report Title</th><th>Analyst</th><th>Date</th><th>Status</th><th style={{ textAlign: 'right' }}>Action</th></tr>
                   </thead>
                   <tbody>
-                    {reports.map((report) => (
-                      <tr key={report.id} style={{
-                        background: selectedReport?.id === report.id ? 'rgba(41, 151, 255, 0.04)' : 'transparent',
-                        borderLeft: selectedReport?.id === report.id ? '2px solid var(--accent-primary)' : '2px solid transparent',
-                      }}>
-                        <td style={{ fontWeight: 500 }}>{report.title}</td>
-                        <td style={{ color: 'var(--text-secondary)' }}>{report.analyst.name}</td>
-                        <td style={{ color: 'var(--text-secondary)' }}>{new Date(report.createdAt).toLocaleDateString()}</td>
-                        <td>
-                          <span className={`badge ${
-                            report.status === 'PENDING' ? 'badge-pending' :
-                            report.status === 'APPROVED' ? 'badge-approved' : 'badge-declined'
-                          }`}>{report.status}</span>
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <Link href={`/banker?id=${report.id}`} className="btn btn-secondary" style={{ padding: '6px 16px', fontSize: '12px' }}>
-                            View Details
-                          </Link>
-                        </td>
+                    {reports.map((r) => (
+                      <tr key={r.id} style={{ background: selectedReport?.id === r.id ? 'rgba(41, 151, 255, 0.04)' : 'transparent' }}>
+                        <td>{r.title}</td>
+                        <td>{r.analyst.name}</td>
+                        <td>{new Date(r.createdAt).toLocaleDateString()}</td>
+                        <td><span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span></td>
+                        <td style={{ textAlign: 'right' }}><Link href={`/banker?id=${r.id}`} className="btn btn-secondary" style={{ padding: '4px 12px' }}>View</Link></td>
                       </tr>
                     ))}
                   </tbody>
@@ -121,69 +94,89 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
               </div>
             </div>
 
-            {/* ── Selected Report Detail ── */}
+            {/* Detailed View */}
             {selectedReport && dcfData && maData && (
-              <div className="glass-panel animate-fade-in" style={{ padding: '32px', marginTop: '24px', animationDelay: '0.3s' }}>
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid var(--border-color)' }}>
+              <div className="glass-panel animate-fade-in" style={{ padding: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', borderBottom: '1px solid var(--border-color)', paddingBottom: '20px' }}>
                   <div>
-                    <h3 style={{ fontSize: '1.3rem', marginBottom: '6px', fontWeight: 700, letterSpacing: '-0.03em' }}>{selectedReport.title}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                      Generated by <strong style={{ color: 'var(--text-primary)' }}>{selectedReport.analyst.name}</strong> · {new Date(selectedReport.createdAt).toLocaleDateString()}
-                    </p>
+                    <h2 style={{ fontSize: '1.4rem', fontWeight: 700 }}>{selectedReport.title}</h2>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Analyst: {selectedReport.analyst.name}</p>
                   </div>
-                  <span className={`badge ${
-                    selectedReport.status === 'PENDING' ? 'badge-pending' :
-                    selectedReport.status === 'APPROVED' ? 'badge-approved' : 'badge-declined'
-                  }`}>{selectedReport.status}</span>
+                  <span className={`badge badge-${selectedReport.status.toLowerCase()}`} style={{ height: 'fit-content' }}>{selectedReport.status}</span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
-                  <div className="stat-card">
-                    <div className="stat-label">Implied Share Price</div>
-                    <div className="stat-value text-gradient-blue">₹{dcfData.impliedSharePrice?.toFixed(2)}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '32px' }}>
+                   <div className="stat-card"><div className="stat-label">Implied Price</div><div className="stat-value text-gradient">₹{dcfData.impliedSharePrice?.toFixed(2)}</div></div>
+                   <div className="stat-card"><div className="stat-label">M&A Accretion</div><div className="stat-value" style={{ color: maData.accretionDilution > 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}>{maData.accretionDilution?.toFixed(2)}%</div></div>
+                   <div className="stat-card"><div className="stat-label">Equity Value</div><div className="stat-value">₹{(dcfData.equityValue / 1000).toFixed(1)}B</div></div>
+                   <div className="stat-card"><div className="stat-label">Premium Paid</div><div className="stat-value">{maData.dealPremium?.toFixed(0)}%</div></div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                  {/* DCF Detail */}
+                  <div>
+                    <h4 className="section-title">DCF MODEL OUTPUTS</h4>
+                    <div className="data-row"><span>PV of FCFs</span><strong>₹{dcfData.pvOfFCFs?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>PV of Terminal Value</span><strong>₹{dcfData.pvTerminal?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>Enterprise Value</span><strong>₹{dcfData.enterpriseValue?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>Implied Share Price</span><strong>₹{dcfData.impliedSharePrice?.toFixed(2)}</strong></div>
+                    <div className="data-row"><span>Analyst Upside</span><strong style={{ color: dcfData.upside > 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}>{dcfData.upside?.toFixed(1)}%</strong></div>
+                    
+                    <h4 className="section-title" style={{ marginTop: '24px' }}>DCF ASSUMPTIONS</h4>
+                    <div className="data-row"><span>WACC</span><strong>{dcfData.wacc}%</strong></div>
+                    <div className="data-row"><span>Terminal Growth</span><strong>{dcfData.tgr}%</strong></div>
+                    <div className="data-row"><span>Revenue Growth</span><strong>{dcfData.revenueGrowth}%</strong></div>
+                    <div className="data-row"><span>EBITDA Margin</span><strong>{dcfData.ebitdaMargin}%</strong></div>
+                    <div className="data-row"><span>Tax Rate</span><strong>{dcfData.taxRate}%</strong></div>
                   </div>
-                  <div className="stat-card">
-                    <div className="stat-label">Enterprise Value</div>
-                    <div className="stat-value">₹{(dcfData.enterpriseValue / 1000)?.toFixed(1)}B</div>
+
+                  {/* M&A Detail */}
+                  <div>
+                    <h4 className="section-title">M&A DEAL STRUCTURE</h4>
+                    <div className="data-row"><span>Offer Price / Share</span><strong>₹{maData.offerPrice?.toFixed(2)}</strong></div>
+                    <div className="data-row"><span>Target Equity Value</span><strong>₹{maData.targetEquityValue?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>Cash Component</span><strong>₹{maData.cashComponent?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>Stock Component</span><strong>₹{maData.stockComponent?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>New Shares Issued</span><strong>{maData.newSharesIssued?.toFixed(1)}M</strong></div>
+                    
+                    <h4 className="section-title" style={{ marginTop: '24px' }}>PRO-FORMA COMBINED</h4>
+                    <div className="data-row"><span>Pro-Forma EPS</span><strong>₹{maData.proFormaEPS?.toFixed(2)}</strong></div>
+                    <div className="data-row"><span>Cost Synergies</span><strong>₹{maData.costSynergies?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>Rev Synergies</span><strong>₹{maData.revenueSynergies?.toLocaleString()}M</strong></div>
+                    <div className="data-row"><span>Interest Rate (Debt)</span><strong>{maData.debtRate}%</strong></div>
+                    <div className="data-row"><span>Combined Revenue</span><strong>₹{maData.combinedRevenue?.toLocaleString()}M</strong></div>
                   </div>
-                  <div className="stat-card">
-                    <div className="stat-label">Deal Value</div>
-                    <div className="stat-value">₹{(maData.totalDealValue / 1000)?.toFixed(1)}B</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-label">Accretion/Dilution</div>
-                    <div className="stat-value" style={{ color: (maData.accretionDilution || 0) > 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
-                      {(maData.accretionDilution || 0) > 0 ? '+' : ''}{maData.accretionDilution?.toFixed(2)}%
+                </div>
+
+                <div style={{ marginTop: '32px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+                  <h4 className="section-title">MODEL INPUTS (RAW DATA)</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', fontSize: '13px' }}>
+                    <div className="glass-panel" style={{ padding: '16px' }}>
+                      <p style={{ fontWeight: 600, marginBottom: '8px', color: 'var(--accent-primary)' }}>{selectedReport.companyA} (Acquirer)</p>
+                      <div className="data-row"><span>Price</span><span>₹{dcfData.priceA}</span></div>
+                      <div className="data-row"><span>Shares</span><span>{dcfData.sharesA}M</span></div>
+                      <div className="data-row"><span>Revenue</span><span>₹{dcfData.revA}M</span></div>
+                      <div className="data-row"><span>Net Debt</span><span>₹{dcfData.netDebtA}M</span></div>
+                      <div className="data-row"><span>CapEx</span><span>₹{dcfData.capexA}M</span></div>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '16px' }}>
+                      <p style={{ fontWeight: 600, marginBottom: '8px', color: 'var(--accent-orange)' }}>{selectedReport.companyB} (Target)</p>
+                      <div className="data-row"><span>Price</span><span>₹{maData.priceB}</span></div>
+                      <div className="data-row"><span>Shares</span><span>{maData.sharesB}M</span></div>
+                      <div className="data-row"><span>Revenue</span><span>₹{maData.revB}M</span></div>
+                      <div className="data-row"><span>Net Debt</span><span>₹{maData.netDebtB}M</span></div>
+                      <div className="data-row"><span>Net Income</span><span>₹{maData.netIncomeB}M</span></div>
                     </div>
                   </div>
                 </div>
 
-                {/* Detailed Data */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-                  <div>
-                    <div className="section-title">DCF Valuation</div>
-                    <div className="data-row"><span className="data-row-label">Equity Value</span><span className="data-row-value">₹{dcfData.equityValue?.toLocaleString()}M</span></div>
-                    <div className="data-row"><span className="data-row-label">WACC</span><span className="data-row-value">{dcfData.wacc?.toFixed(1)}%</span></div>
-                  </div>
-                  <div>
-                    <div className="section-title">M&amp;A Deal Analysis</div>
-                    <div className="data-row"><span className="data-row-label">Offer Price / Share</span><span className="data-row-value">₹{maData.offerPrice?.toFixed(2)}</span></div>
-                    <div className="data-row"><span className="data-row-label">Cost Synergies</span><span className="data-row-value">₹{maData.costSynergies?.toLocaleString()}M</span></div>
-                  </div>
-                </div>
-
-                {/* Decision Form */}
                 {selectedReport.status === 'PENDING' && (
-                  <form action={async (formData) => {
-                    'use server'
-                    const actionType = formData.get('actionType') as string
-                    await processReport(selectedReport.id, actionType as 'APPROVED'|'DECLINED', formData.get('comments') as string)
-                  }} style={{ marginTop: '28px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
-                    <textarea name="comments" className="input-field" rows={3} placeholder="Add decision comments..." required></textarea>
+                  <form action={async (f) => { 'use server'; await processReport(selectedReport.id, f.get('a') as any, f.get('c') as string); }} style={{ marginTop: '32px' }}>
+                    <label className="input-label">Banker Review Comments</label>
+                    <textarea name="c" className="input-field" rows={3} placeholder="Add feedback for the analyst..."></textarea>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-                      <button type="submit" name="actionType" value="DECLINED" className="btn btn-danger">Decline</button>
-                      <button type="submit" name="actionType" value="APPROVED" className="btn btn-success">Approve Model →</button>
+                      <button name="a" value="DECLINED" className="btn btn-danger">Decline Request</button>
+                      <button name="a" value="APPROVED" className="btn btn-success">Final Approval →</button>
                     </div>
                   </form>
                 )}
@@ -191,18 +184,15 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
             )}
           </div>
 
-          {/* ── Collaboration Sidebar (RIGHT) ── */}
-          <div style={{ position: 'sticky', top: '24px', height: 'fit-content' }}>
+          <aside style={{ position: 'sticky', top: '24px', height: 'fit-content' }}>
             {selectedReport && session && (
               <CollaborationChat 
-                reportId={selectedReport.id}
-                userId={session.user.id}
-                role={session.user.role}
-                userName={session.user.name}
-                initialMessages={chatMessages}
+                reportId={selectedReport.id} userId={session.user.id} 
+                role={session.user.role} userName={session.user.name} 
+                initialMessages={chatMessages} 
               />
             )}
-          </div>
+          </aside>
         </div>
       </main>
     </div>
