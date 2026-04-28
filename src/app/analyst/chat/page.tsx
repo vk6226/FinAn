@@ -12,19 +12,19 @@ interface Message {
 }
 
 const SUGGESTIONS = [
-  "What is Apple's current valuation and P/E ratio?",
-  "Show me Tesla's revenue and profit margins",
-  "Compare Microsoft vs Google financially",
-  "What is NVIDIA's free cash flow and debt levels?",
-  "Give me Amazon's balance sheet highlights",
-  "What is the analyst recommendation for Meta?",
+  "What is the valuation of Reliance in Rupees?",
+  "Show me Zomato's revenue and EBITDA in ₹",
+  "Compare Apple vs Google in Rupee terms",
+  "What is TCS's free cash flow and debt levels?",
+  "Give me HDFC Bank's balance sheet highlights",
+  "What is the analyst recommendation for Adani?",
 ];
 
 export default function FinancialChatPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `## Welcome to FinAn AI 🤖\n\nI am your AI-powered financial analyst, connected to **live Yahoo Finance data**.\n\nYou can ask me about:\n- 📊 Revenue, EBITDA, Free Cash Flow for any public company\n- 📈 Valuation metrics (P/E, P/B, EV/EBITDA)\n- 🏦 Balance sheet — debt, cash, assets\n- 📉 Stock price, 52-week range, market cap\n- 🔍 Analyst recommendations and price targets\n\nJust mention a company name or ticker symbol (e.g. AAPL, MSFT, TSLA) in your question!`,
+      content: `## Welcome to FinAn AI 🤖\n\nI am your AI-powered financial analyst, connected to **live Yahoo Finance data**.\n\nYou can ask me about:\n- 📊 Revenue, EBITDA, Free Cash Flow (Converted to ₹)\n- 📈 Valuation metrics (P/E, P/B, EV/EBITDA)\n- 🏦 Balance sheet — debt, cash, assets\n- 📉 Stock price, 52-week range, market cap\n\nAll financial values are automatically converted to **Indian Rupees (₹)** for your convenience!`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -61,7 +61,7 @@ export default function FinancialChatPage() {
       const data = await res.json();
 
       if (data.error) {
-        setMessages(prev => [...prev, { role: 'assistant', content: `❌ Error: ${data.error}` }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: `Error: ${data.error}` }]);
       } else {
         if (data.ticker) setTicker(data.ticker);
         setMessages(prev => [...prev, {
@@ -72,7 +72,7 @@ export default function FinancialChatPage() {
         }]);
       }
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'assistant', content: '❌ Network error. Please try again.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Network error. Please try again.' }]);
     }
     setLoading(false);
   }
@@ -119,11 +119,11 @@ export default function FinancialChatPage() {
         </div>
         <nav className="sidebar-nav">
           <Link href="/analyst" className="sidebar-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>
             New Analysis
           </Link>
           <Link href="/analyst/chat" className="sidebar-link active">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             AI Financial Assistant
           </Link>
         </nav>
@@ -147,7 +147,7 @@ export default function FinancialChatPage() {
             <div>
               <h1 className="text-gradient" style={{ fontSize: '22px' }}>AI Financial Assistant</h1>
               <p style={{ margin: 0, fontSize: '13px' }}>
-                Powered by <strong>Gemini Flash</strong> + <strong>Yahoo Finance</strong> (Live Data) · 100% Free
+                Powered by <strong>Mistral AI</strong> · Real-time data converted to <strong>Rupees (₹)</strong>
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function FinancialChatPage() {
         </div>
 
         {/* Messages */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 12px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {messages.map((msg, i) => (
             <div key={i} className="animate-fade-in" style={{
               display: 'flex', gap: '12px',
@@ -196,7 +196,7 @@ export default function FinancialChatPage() {
                 {msg.hasLiveData && (
                   <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid var(--border-subtle)', display: 'flex', gap: '6px', alignItems: 'center' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-success)' }} />
-                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>Live data via Yahoo Finance</span>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>Live data via Yahoo Finance (₹)</span>
                   </div>
                 )}
               </div>
@@ -261,7 +261,7 @@ export default function FinancialChatPage() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                placeholder="Ask about any company — e.g. 'What is Tesla's revenue and P/E ratio?'"
+                placeholder="Ask about any company — results will be in Rupees (₹)"
                 className="input-field"
                 style={{ width: '100%', marginBottom: 0 }}
                 disabled={loading}
@@ -277,7 +277,7 @@ export default function FinancialChatPage() {
             </button>
           </div>
           <p style={{ margin: '8px 0 0', fontSize: '11px', color: 'var(--text-muted)' }}>
-            Press Enter to send. Data sourced from Yahoo Finance in real-time. Requires GEMINI_API_KEY in .env
+            Press Enter to send. International stock values are automatically converted to ₹ at 83.50 rate.
           </p>
         </div>
       </main>

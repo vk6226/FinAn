@@ -137,19 +137,19 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
               <div className="stat-card">
                 <div className="stat-label">Implied Share Price</div>
-                <div className="stat-value text-gradient-blue">${dcfData.impliedSharePrice?.toFixed(2)}</div>
+                <div className="stat-value text-gradient-blue">₹{dcfData.impliedSharePrice?.toFixed(2)}</div>
                 <div className="stat-meta" style={{ color: (dcfData.upside || 0) > 0 ? 'var(--accent-success)' : 'var(--accent-danger)' }}>
                   {(dcfData.upside || 0) > 0 ? '▲' : '▼'} {dcfData.upside?.toFixed(1)}% upside
                 </div>
               </div>
               <div className="stat-card">
                 <div className="stat-label">Enterprise Value</div>
-                <div className="stat-value">${(dcfData.enterpriseValue / 1000)?.toFixed(1)}B</div>
+                <div className="stat-value">₹{(dcfData.enterpriseValue / 1000)?.toFixed(1)}B</div>
                 <div className="stat-meta">DCF-derived</div>
               </div>
               <div className="stat-card">
                 <div className="stat-label">Deal Value</div>
-                <div className="stat-value">${(maData.totalDealValue / 1000)?.toFixed(1)}B</div>
+                <div className="stat-value">₹{(maData.totalDealValue / 1000)?.toFixed(1)}B</div>
                 <div className="stat-meta">{maData.dealPremium?.toFixed(0)}% premium</div>
               </div>
               <div className="stat-card">
@@ -171,19 +171,19 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">PV of Projected FCFs</span>
-                  <span className="data-row-value">${dcfData.pvOfFCFs?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{dcfData.pvOfFCFs?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Terminal Value</span>
-                  <span className="data-row-value">${dcfData.terminalValue?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{dcfData.terminalValue?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">PV of Terminal Value</span>
-                  <span className="data-row-value">${dcfData.pvTerminal?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{dcfData.pvTerminal?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Equity Value</span>
-                  <span className="data-row-value">${dcfData.equityValue?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{dcfData.equityValue?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">WACC</span>
@@ -203,7 +203,7 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Acquirer EPS</span>
-                  <span className="data-row-value">${dcfData.companyA_eps?.toFixed(2)}</span>
+                  <span className="data-row-value">₹{dcfData.companyA_eps?.toFixed(2)}</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Acquirer P/E</span>
@@ -219,19 +219,19 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Offer Price / Share</span>
-                  <span className="data-row-value">${maData.offerPrice?.toFixed(2)}</span>
+                  <span className="data-row-value">₹{maData.offerPrice?.toFixed(2)}</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Target Equity Value</span>
-                  <span className="data-row-value">${maData.targetEquityValue?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{maData.targetEquityValue?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Cash Component</span>
-                  <span className="data-row-value">${maData.cashComponent?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{maData.cashComponent?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Stock Component</span>
-                  <span className="data-row-value">${maData.stockComponent?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{maData.stockComponent?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">New Shares Issued</span>
@@ -239,19 +239,19 @@ export default async function BankerDashboard({ searchParams }: { searchParams: 
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Combined Revenue</span>
-                  <span className="data-row-value">${maData.combinedRevenue?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{maData.combinedRevenue?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Combined EBITDA</span>
-                  <span className="data-row-value">${maData.combinedEbitda?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{maData.combinedEbitda?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Pro-Forma EPS</span>
-                  <span className="data-row-value">${maData.proFormaEPS?.toFixed(2)}</span>
+                  <span className="data-row-value">₹{maData.proFormaEPS?.toFixed(2)}</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Cost Synergies</span>
-                  <span className="data-row-value">${maData.costSynergies?.toLocaleString()}M</span>
+                  <span className="data-row-value">₹{maData.costSynergies?.toLocaleString()}M</span>
                 </div>
                 <div className="data-row">
                   <span className="data-row-label">Target EV/EBITDA</span>

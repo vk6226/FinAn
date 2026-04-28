@@ -1,25 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import yahooFinance from 'yahoo-finance2';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const USD_TO_INR = 83.5; // Fixed conversion rate for presentation
 
 async function fetchCompanyData(ticker: string) {
   try {
-    const [quote, summary, financials] = await Promise.allSettled([
+    const [quote, summary] = await Promise.allSettled([
       yahooFinance.quote(ticker),
       yahooFinance.quoteSummary(ticker, {
-        modules: ['summaryProfile', 'financialData', 'defaultKeyStatistics', 'incomeStatementHistory', 'balanceSheetHistory', 'cashflowStatementHistory'],
-      }),
-      yahooFinance.quoteSummary(ticker, {
-        modules: ['earnings'],
+        modules: ['summaryProfile', 'financialData', 'defaultKeyStatistics'],
       }),
     ]);
-
     return {
-      quote: quote.status === 'fulfilled' ? quote.value : null,
-      summary: summary.status === 'fulfilled' ? summary.value : null,
-      earnings: financials.status === 'fulfilled' ? financials.value : null,
+      quote: quote.status === 'fulfilled' ? (quote.value as any) : null,
+      summary: summary.status === 'fulfilled' ? (summary.value as any) : null,
     };
   } catch (err) {
     return null;
@@ -27,146 +21,97 @@ async function fetchCompanyData(ticker: string) {
 }
 
 function formatFinancialData(data: any, ticker: string): string {
-  if (!data) return `No data found for ${ticker}.`;
-
+  if (!data || (!data.quote && !data.summary)) return `No data found for ${ticker}.`;
+  
   const q = data.quote;
   const s = data.summary;
-
   const lines: string[] = [];
+  
+  // Detection for conversion
+  const isUSD = q?.currency === 'USD';
+  const convert = (val: number | undefined) => {
+    if (val === undefined || val === null) return 'N/A';
+    const finalVal = isUSD ? val * USD_TO_INR : val;
+    if (finalVal > 1e9) return `₹${(finalVal / 1e9).toFixed(2)}B`;
+    if (finalVal > 1e7) return `₹${(finalVal / 1e7).toFixed(2)} Cr`;
+    return `₹${finalVal.toLocaleString()}`;
+  };
 
   if (q) {
     lines.push(`## ${q.longName || q.shortName || ticker} (${ticker.toUpperCase()})`);
-    lines.push(`Exchange: ${q.exchange || 'N/A'} | Currency: ${q.currency || 'N/A'}`);
-    lines.push(`\n### Price Data`);
-    lines.push(`Current Price: $${q.regularMarketPrice ?? 'N/A'}`);
-    lines.push(`52-Week High: $${q.fiftyTwoWeekHigh ?? 'N/A'} | Low: $${q.fiftyTwoWeekLow ?? 'N/A'}`);
-    lines.push(`Market Cap: $${q.marketCap ? (q.marketCap / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`Volume: ${q.regularMarketVolume?.toLocaleString() ?? 'N/A'}`);
+    lines.push(`Current Price: ${convert(q.regularMarketPrice)}`);
+    lines.push(`Market Cap: ${convert(q.marketCap)}`);
+    if (isUSD) lines.push(`(Converted from USD at ${USD_TO_INR} rate)`);
   }
-
+  
   if (s?.financialData) {
     const fd = s.financialData;
-    lines.push(`\n### Financial Metrics`);
-    lines.push(`Revenue (TTM): $${fd.totalRevenue ? (fd.totalRevenue / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`Gross Profit: $${fd.grossProfits ? (fd.grossProfits / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`EBITDA: $${fd.ebitda ? (fd.ebitda / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`Free Cash Flow: $${fd.freeCashflow ? (fd.freeCashflow / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`Operating Margins: ${fd.operatingMargins ? (fd.operatingMargins * 100).toFixed(1) + '%' : 'N/A'}`);
-    lines.push(`Profit Margins: ${fd.profitMargins ? (fd.profitMargins * 100).toFixed(1) + '%' : 'N/A'}`);
-    lines.push(`Return on Equity: ${fd.returnOnEquity ? (fd.returnOnEquity * 100).toFixed(1) + '%' : 'N/A'}`);
-    lines.push(`Return on Assets: ${fd.returnOnAssets ? (fd.returnOnAssets * 100).toFixed(1) + '%' : 'N/A'}`);
-    lines.push(`Debt/Equity: ${fd.debtToEquity ?? 'N/A'}`);
-    lines.push(`Current Ratio: ${fd.currentRatio ?? 'N/A'}`);
-    lines.push(`Total Cash: $${fd.totalCash ? (fd.totalCash / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`Total Debt: $${fd.totalDebt ? (fd.totalDebt / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-    lines.push(`Revenue Growth (YoY): ${fd.revenueGrowth ? (fd.revenueGrowth * 100).toFixed(1) + '%' : 'N/A'}`);
-    lines.push(`Earnings Growth: ${fd.earningsGrowth ? (fd.earningsGrowth * 100).toFixed(1) + '%' : 'N/A'}`);
-    lines.push(`Analyst Target Price: $${fd.targetMeanPrice ?? 'N/A'}`);
-    lines.push(`Recommendation: ${fd.recommendationKey ?? 'N/A'}`);
+    lines.push(`Revenue (TTM): ${convert(fd.totalRevenue)}`);
+    lines.push(`EBITDA: ${convert(fd.ebitda)}`);
+    lines.push(`Margins: ${fd.operatingMargins ? (fd.operatingMargins * 100).toFixed(1) + '%' : 'N/A'}`);
   }
-
-  if (s?.defaultKeyStatistics) {
-    const ks = s.defaultKeyStatistics;
-    lines.push(`\n### Valuation`);
-    lines.push(`P/E Ratio (TTM): ${ks.trailingEps && q?.regularMarketPrice ? (q.regularMarketPrice / ks.trailingEps).toFixed(2) : 'N/A'}`);
-    lines.push(`EPS (TTM): $${ks.trailingEps ?? 'N/A'}`);
-    lines.push(`Forward EPS: $${ks.forwardEps ?? 'N/A'}`);
-    lines.push(`PEG Ratio: ${ks.pegRatio ?? 'N/A'}`);
-    lines.push(`Price/Book: ${ks.priceToBook ?? 'N/A'}`);
-    lines.push(`Beta: ${ks.beta ?? 'N/A'}`);
-    lines.push(`Shares Outstanding: ${ks.sharesOutstanding ? (ks.sharesOutstanding / 1e9).toFixed(2) + 'B' : 'N/A'}`);
-  }
-
-  if (s?.summaryProfile) {
-    const sp = s.summaryProfile;
-    lines.push(`\n### Company Profile`);
-    lines.push(`Sector: ${sp.sector ?? 'N/A'} | Industry: ${sp.industry ?? 'N/A'}`);
-    lines.push(`Employees: ${sp.fullTimeEmployees?.toLocaleString() ?? 'N/A'}`);
-    lines.push(`Country: ${sp.country ?? 'N/A'}`);
-    if (sp.longBusinessSummary) {
-      lines.push(`\nBusiness Summary: ${sp.longBusinessSummary.slice(0, 500)}...`);
-    }
-  }
-
+  
   return lines.join('\n');
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, ticker, history } = await req.json();
+    const body = await req.json();
+    const { message, history } = body;
+    const apiKey = process.env.MISTRAL_API_KEY;
 
-    if (!message) {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: 'GEMINI_API_KEY not configured in .env' }, { status: 500 });
-    }
-
-    // Detect ticker from message if not provided
-    let resolvedTicker = ticker;
-    const tickerMatch = message.match(/\b([A-Z]{1,5})\b/) || 
-      message.match(/\b(apple|microsoft|google|amazon|tesla|meta|nvidia|netflix)\b/i);
-    
     const companyToTicker: Record<string, string> = {
-      apple: 'AAPL', microsoft: 'MSFT', google: 'GOOGL', amazon: 'AMZN',
-      tesla: 'TSLA', meta: 'META', nvidia: 'NVDA', netflix: 'NFLX',
-      samsung: '005930.KS', infosys: 'INFY', tcs: 'TCS.NS', reliance: 'RELIANCE.NS',
+      apple: 'AAPL', microsoft: 'MSFT', google: 'GOOGL', tesla: 'TSLA', nvidia: 'NVDA',
+      patanjali: 'PATANJALI.NS', reliance: 'RELIANCE.NS', tcs: 'TCS.NS', infosys: 'INFY.NS',
+      zomato: 'ZOMATO.NS', hdfc: 'HDFCBANK.NS', adani: 'ADANIENT.NS'
     };
 
-    if (!resolvedTicker && tickerMatch) {
-      const match = tickerMatch[1];
-      resolvedTicker = companyToTicker[match.toLowerCase()] || match.toUpperCase();
+    let resolvedTicker = '';
+    const cleanWords = message.toLowerCase().replace(/[?!.,]/g, '').split(/\s+/);
+    for (const word of cleanWords) {
+      if (companyToTicker[word]) { resolvedTicker = companyToTicker[word]; break; }
+      if (word.includes('.')) resolvedTicker = word.toUpperCase();
     }
 
     let financialContext = '';
     if (resolvedTicker) {
       const data = await fetchCompanyData(resolvedTicker);
-      if (data) {
-        financialContext = formatFinancialData(data, resolvedTicker);
-      }
+      financialContext = formatFinancialData(data, resolvedTicker);
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    
-    const systemPrompt = `You are FinAn AI, an expert financial analyst assistant embedded in an enterprise financial analytics platform. You have access to real-time financial data from Yahoo Finance.
+    const systemPrompt = `You are FinAn AI.
+CONTEXT DATA (ALL VALUES IN RUPEES ₹):
+${financialContext || 'No real-time data found.'}
 
-Your role:
-- Answer questions about companies' financial performance, valuation, and market position
-- Explain financial metrics clearly (P/E, EBITDA, DCF, M&A concepts)
-- Provide investment analysis in a professional, concise manner
-- Format numbers clearly (e.g., $12.4B, 23.5%, etc.)
+INSTRUCTIONS:
+- Report all monetary values in Indian Rupees (₹).
+- Use Cr (Crores) or B (Billions) for large figures as provided in context.
+- Mention "Yahoo Finance (Live)" for specific data points.`;
 
-${financialContext ? `\n## Live Financial Data\n${financialContext}` : ''}
-
-Always cite the data source as "Yahoo Finance (real-time)" when using financial figures.
-Be concise, professional, and structured. Use bullet points and headers when appropriate.`;
-
-    const chat = model.startChat({
-      history: [
-        {
-          role: 'user',
-          parts: [{ text: 'System context: ' + systemPrompt }],
-        },
-        {
-          role: 'model',
-          parts: [{ text: 'Understood. I am FinAn AI, ready to provide financial analysis and data.' }],
-        },
-        ...(history || []),
-      ],
+    const mistralRes = await fetch('https://api.mistral.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'open-mistral-7b',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...(history || []).map((h: any) => ({
+            role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
+            content: h.parts?.[0]?.text || h.content || ''
+          })).slice(-6),
+          { role: 'user', content: message }
+        ],
+      }),
     });
 
-    const result = await chat.sendMessage(message);
-    const response = result.response.text();
-
-    return NextResponse.json({
-      response,
-      ticker: resolvedTicker || null,
-      hasLiveData: !!financialContext,
+    const data = await mistralRes.json();
+    return NextResponse.json({ 
+      response: data.choices[0].message.content,
+      ticker: resolvedTicker,
+      hasLiveData: !!financialContext
     });
+
   } catch (err: any) {
-    console.error('Financial chat error:', err);
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

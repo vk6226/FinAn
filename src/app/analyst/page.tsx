@@ -64,10 +64,10 @@ export default function AnalystDashboard() {
     doc.text(`ACQUIRER — ${companyA.toUpperCase()}`, 15, y); y += 8;
     doc.setTextColor(60, 60, 60); doc.setFontSize(9);
     const aFields = [
-      ['Share Price', `$${g('companyA_price')}`], ['Shares Outstanding', `${g('companyA_shares')}M`],
-      ['Revenue', `$${g('companyA_revenue')}M`], ['EBITDA', `$${g('companyA_ebitda')}M`],
-      ['Net Income', `$${g('companyA_netIncome')}M`], ['Net Debt', `$${g('companyA_netDebt')}M`],
-      ['CapEx', `$${g('companyA_capex')}M`], ['D&A', `$${g('companyA_da')}M`],
+      ['Share Price', `₹${g('companyA_price')}`], ['Shares Outstanding', `${g('companyA_shares')}M`],
+      ['Revenue', `₹${g('companyA_revenue')}M`], ['EBITDA', `₹${g('companyA_ebitda')}M`],
+      ['Net Income', `₹${g('companyA_netIncome')}M`], ['Net Debt', `₹${g('companyA_netDebt')}M`],
+      ['CapEx', `₹${g('companyA_capex')}M`], ['D&A', `₹${g('companyA_da')}M`],
     ];
     aFields.forEach(([label, value]) => {
       doc.text(`${label}:`, 20, y); doc.text(value, 80, y); y += 6;
@@ -79,9 +79,9 @@ export default function AnalystDashboard() {
     doc.text(`TARGET — ${companyB.toUpperCase()}`, 15, y); y += 8;
     doc.setTextColor(60, 60, 60); doc.setFontSize(9);
     const bFields = [
-      ['Share Price', `$${g('companyB_price')}`], ['Shares Outstanding', `${g('companyB_shares')}M`],
-      ['Revenue', `$${g('companyB_revenue')}M`], ['EBITDA', `$${g('companyB_ebitda')}M`],
-      ['Net Income', `$${g('companyB_netIncome')}M`], ['Net Debt', `$${g('companyB_netDebt')}M`],
+      ['Share Price', `₹${g('companyB_price')}`], ['Shares Outstanding', `${g('companyB_shares')}M`],
+      ['Revenue', `₹${g('companyB_revenue')}M`], ['EBITDA', `₹${g('companyB_ebitda')}M`],
+      ['Net Income', `₹${g('companyB_netIncome')}M`], ['Net Debt', `₹${g('companyB_netDebt')}M`],
     ];
     bFields.forEach(([label, value]) => {
       doc.text(`${label}:`, 20, y); doc.text(value, 80, y); y += 6;
@@ -110,8 +110,8 @@ export default function AnalystDashboard() {
     doc.setTextColor(60, 60, 60); doc.setFontSize(9);
     const maFields = [
       ['Offer Premium', `${g('premium')}%`], ['Cash Component', `${g('cashPct')}%`],
-      ['Cost Synergies', `$${g('costSynergies')}M`], ['Revenue Synergies', `$${g('revenueSynergies')}M`],
-      ['Integration Costs', `$${g('integrationCosts')}M`], ['Debt Financing Rate', `${g('debtFinancingRate')}%`],
+      ['Cost Synergies', `₹${g('costSynergies')}M`], ['Revenue Synergies', `₹${g('revenueSynergies')}M`],
+      ['Integration Costs', `₹${g('integrationCosts')}M`], ['Debt Financing Rate', `${g('debtFinancingRate')}%`],
     ];
     maFields.forEach(([label, value]) => {
       doc.text(`${label}:`, 20, y); doc.text(value, 80, y); y += 6;
@@ -141,7 +141,7 @@ export default function AnalystDashboard() {
             New Analysis
           </Link>
           <Link href="/analyst/chat" className="sidebar-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
             AI Financial Assistant
           </Link>
         </nav>
@@ -191,7 +191,7 @@ export default function AnalystDashboard() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="input-group">
-                  <label className="input-label">Share Price ($)</label>
+                  <label className="input-label">Share Price (₹)</label>
                   <input name="companyA_price" type="number" step="0.01" className="input-field" placeholder="150.00" required />
                 </div>
                 <div className="input-group">
@@ -202,37 +202,37 @@ export default function AnalystDashboard() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="input-group">
-                  <label className="input-label">Revenue ($M)</label>
+                  <label className="input-label">Revenue (₹M)</label>
                   <input name="companyA_revenue" type="number" step="0.1" className="input-field" placeholder="45000" required />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">EBITDA ($M)</label>
+                  <label className="input-label">EBITDA (₹M)</label>
                   <input name="companyA_ebitda" type="number" step="0.1" className="input-field" placeholder="12000" required />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="input-group">
-                  <label className="input-label">Net Income ($M)</label>
+                  <label className="input-label">Net Income (₹M)</label>
                   <input name="companyA_netIncome" type="number" step="0.1" className="input-field" placeholder="8500" required />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">Net Debt ($M)</label>
+                  <label className="input-label">Net Debt (₹M)</label>
                   <input name="companyA_netDebt" type="number" step="0.1" className="input-field" placeholder="5000" required />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label className="input-label">CapEx ($M)</label>
+                  <label className="input-label">CapEx (₹M)</label>
                   <input name="companyA_capex" type="number" step="0.1" className="input-field" placeholder="3000" required />
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label className="input-label">D&amp;A ($M)</label>
+                  <label className="input-label">D&amp;A (₹M)</label>
                   <input name="companyA_da" type="number" step="0.1" className="input-field" placeholder="2000" required />
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label className="input-label">ΔNWC ($M)</label>
+                  <label className="input-label">ΔNWC (₹M)</label>
                   <input name="companyA_nwcChange" type="number" step="0.1" className="input-field" placeholder="500" required />
                 </div>
               </div>
@@ -252,7 +252,7 @@ export default function AnalystDashboard() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="input-group">
-                  <label className="input-label">Share Price ($)</label>
+                  <label className="input-label">Share Price (₹)</label>
                   <input name="companyB_price" type="number" step="0.01" className="input-field" placeholder="40.00" required />
                 </div>
                 <div className="input-group">
@@ -263,22 +263,22 @@ export default function AnalystDashboard() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="input-group">
-                  <label className="input-label">Revenue ($M)</label>
+                  <label className="input-label">Revenue (₹M)</label>
                   <input name="companyB_revenue" type="number" step="0.1" className="input-field" placeholder="3200" required />
                 </div>
                 <div className="input-group">
-                  <label className="input-label">EBITDA ($M)</label>
+                  <label className="input-label">EBITDA (₹M)</label>
                   <input name="companyB_ebitda" type="number" step="0.1" className="input-field" placeholder="800" required />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div className="input-group">
-                  <label className="input-label">Net Income ($M)</label>
+                  <label className="input-label">Net Income (₹M)</label>
                   <input name="companyB_netIncome" type="number" step="0.1" className="input-field" placeholder="400" required />
                 </div>
                 <div className="input-group" style={{ marginBottom: 0 }}>
-                  <label className="input-label">Net Debt ($M)</label>
+                  <label className="input-label">Net Debt (₹M)</label>
                   <input name="companyB_netDebt" type="number" step="0.1" className="input-field" placeholder="1200" required />
                 </div>
               </div>
@@ -339,15 +339,15 @@ export default function AnalystDashboard() {
                 <input name="cashPct" type="number" step="1" min="0" max="100" className="input-field" placeholder="40" required />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label className="input-label">Cost Synergy ($M)</label>
+                <label className="input-label">Cost Synergy (₹M)</label>
                 <input name="costSynergies" type="number" step="0.1" className="input-field" placeholder="300" required />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label className="input-label">Rev. Synergy ($M)</label>
+                <label className="input-label">Rev. Synergy (₹M)</label>
                 <input name="revenueSynergies" type="number" step="0.1" className="input-field" placeholder="150" required />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
-                <label className="input-label">Integ. Costs ($M)</label>
+                <label className="input-label">Integ. Costs (₹M)</label>
                 <input name="integrationCosts" type="number" step="0.1" className="input-field" placeholder="200" required />
               </div>
               <div className="input-group" style={{ marginBottom: 0 }}>
