@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  // Hardcoded for Vercel demo compatibility to avoid "protocol file:" errors
+  url      = "file:./dev.db"
 }
 
 model User {
