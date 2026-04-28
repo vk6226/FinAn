@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Removed unrecognized 'eslint' key to clear console warnings
+  // Force Turbopack to use the correct project root
+  turbopack: {
+    resolveAlias: {
+      "@/*": ["./src/*"],
+    },
+  },
 };
 
 export default nextConfig;
