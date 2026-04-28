@@ -17,6 +17,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   reports   Report[] @relation("AnalystReports")
+  messages  CollaborationMessage[]
   logs      Log[]
 }
 
@@ -34,6 +35,19 @@ model Report {
   updatedAt DateTime @updatedAt
 
   analyst   User     @relation("AnalystReports", fields: [analystId], references: [id])
+  messages  CollaborationMessage[]
+}
+
+model CollaborationMessage {
+  id        String   @id @default(uuid())
+  reportId  String
+  userId    String
+  text      String
+  role      String   // ANALYST or BANKER
+  createdAt DateTime @default(now())
+
+  report    Report   @relation(fields: [reportId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Log {
