@@ -3,13 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   typescript: {
-    // Ignore type errors during build for demo stability
     ignoreBuildErrors: true,
   },
-  eslint: {
-    // Modern way to ignore ESLint during project builds
-    ignoreDuringBuilds: true,
-  },
+  // Removed unrecognized 'eslint' key to clear console warnings
 };
 
 export default nextConfig;
