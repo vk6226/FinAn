@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import List
 from database import get_db
-from models import UserCreate, UserInDB, UserPublic, Token
+from models import UserCreate, UserInDB, UserPublic, Token, AuditLog
 from api.utils import get_password_hash, verify_password, create_access_token, SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt
 from datetime import datetime
@@ -51,16 +51,26 @@ async def register(user_in: UserCreate):
     return user_data
 
 @router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     db = get_db()
     user = await db["users"].find_one({"email": form_data.username})
     if not user or not verify_password(form_data.password, user["password"]):
+        # Log failed attempt?
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    # Create Audit Log
+    log_entry = AuditLog(
+        email=user["email"],
+        action="LOGIN",
+        ip_address=request.client.host,
+        user_agent=request.headers.get("user-agent")
+    ).dict()
+    await db["audit_logs"].insert_one(log_entry)
+
     access_token = create_access_token(
         data={"sub": user["email"], "role": user["role"]}
     )

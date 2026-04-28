@@ -48,3 +48,6 @@ backend/__pycache__/
 backend/dev.db
 backend/temp_pdfs/
 backend/temp_images/
+
+# SQLite local database
+dev.db

@@ -55,3 +55,11 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
     role: Optional[str] = None
+
+class AuditLog(BaseModel):
+    id: str = Field(default_factory=generate_uuid)
+    email: str
+    action: str
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    ip_address: Optional[str] = None
+    user_agent: Optional[str] = None

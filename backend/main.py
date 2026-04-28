@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import connect_to_mongo, close_mongo_connection
-from api.routers import auth, reports
+from api.routers import auth, reports, admin
 import uvicorn
 
 app = FastAPI(
@@ -32,6 +32,7 @@ async def shutdown_db_client():
 # Include Routers
 app.include_router(auth.router)
 app.include_router(reports.router)
+app.include_router(admin.router)
 
 @app.get("/")
 async def root():
