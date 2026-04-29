@@ -51,8 +51,8 @@ export async function completePasswordReset(formData: FormData) {
     where: { action: 'SECURITY_TOKEN_GEN', details: { contains: email } },
     orderBy: { createdAt: 'desc' }
   });
-  if (!lastLog || !lastLog.details?.includes(`[ ${token} ]`)) {
-    return { error: 'Invalid or expired recovery token. Contact Admin.' };
+  if (!lastLog || !lastLog.details?.includes(token)) {
+    return { error: 'Invalid or expired recovery token. Please verify the code in Admin logs.' };
   }
   const hashed = bcryptjs.hashSync(password, 10);
   await db.user.update({ where: { email }, data: { password: hashed } });
