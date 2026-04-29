@@ -2,44 +2,53 @@
 
 import { useState } from "react";
 import { requestPasswordReset } from "@/actions/authActions";
+import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  // Note: Redirection is handled by the server action on success
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
     const res = await requestPasswordReset(formData);
-    if (res?.error) setError(res.error);
-    setLoading(false);
+    
+    if (res?.error) {
+      setError(res.error);
+      setLoading(false);
+    } else if (res?.success) {
+      // BROWSER-SIDE REDIRECT (Much more stable)
+      router.push(`/forgot-password/verify?email=${encodeURIComponent(res.email as string)}`);
+    } else {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="login-wrapper">
       <div className="glass-panel login-card animate-scale-in" style={{ maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 className="login-brand text-gradient-blue">Recovery</h1>
-          <p className="login-tagline">Identify your account to generate a token.</p>
+          <h1 className="login-brand text-gradient-blue">Account Recovery</h1>
+          <p className="login-tagline">Identify your account to generate a security token.</p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
           {error && (
-            <div style={{ color: 'var(--accent-danger)', background: 'rgba(255, 69, 58, 0.08)', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '13px', textAlign: 'center' }}>
+            <div style={{ color: 'var(--accent-danger)', background: 'rgba(255, 69, 58, 0.1)', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '13px', textAlign: 'center' }}>
               {error}
             </div>
           )}
           
           <div className="input-group">
-            <label className="input-label">User Name / Email</label>
+            <label className="input-label">Username / Email</label>
             <input name="email" type="email" className="input-field" placeholder="your-email@company.com" required />
           </div>
 
           <button type="submit" className="btn btn-accent" style={{ width: '100%', padding: '14px' }} disabled={loading}>
-            {loading ? 'Generating Token...' : 'Identify Account →'}
+            {loading ? 'Validating Account...' : 'Continue to Verification →'}
           </button>
           
           <div style={{ textAlign: 'center', marginTop: '24px' }}>

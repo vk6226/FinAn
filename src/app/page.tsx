@@ -20,20 +20,7 @@ export default function Home() {
   }
 
   return (
-    <div className="login-wrapper" suppressHydrationWarning>
-      <div style={{
-        position: 'absolute', top: '15%', left: '10%',
-        width: '300px', height: '300px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(41,151,255,0.08), transparent 70%)',
-        filter: 'blur(60px)', pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '20%', right: '15%',
-        width: '250px', height: '250px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(191,90,242,0.06), transparent 70%)',
-        filter: 'blur(60px)', pointerEvents: 'none',
-      }} />
-
+    <div className="login-wrapper">
       <div className="glass-panel login-card animate-scale-in" style={{ paddingBottom: '32px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 className="login-brand text-gradient-blue">FinAn</h1>
@@ -56,31 +43,24 @@ export default function Home() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="input-group">
             <label className="input-label">Email Address</label>
-            <input name="email" type="email" className="input-field" placeholder="admin@finan.com" required suppressHydrationWarning />
+            <input name="email" type="email" className="input-field" placeholder="admin@finan.com" required />
           </div>
           <div className="input-group">
             <label className="input-label">Password</label>
-            <input name="password" type="password" className="input-field" placeholder="••••••••" required suppressHydrationWarning />
+            <input name="password" type="password" className="input-field" placeholder="••••••••" required />
           </div>
 
-          <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '8px', padding: '14px' }} disabled={loading} suppressHydrationWarning>
+          <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '8px', padding: '14px' }} disabled={loading}>
             {loading ? 'Authenticating...' : 'Sign In →'}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-           {/* Using standard <a> instead of <Link> to force browser navigation if router is hanging */}
-           <a href="/forgot-password" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 500 }}>
-             Forgot your password? Recover Account
+        <div style={{ textAlign: 'center', marginTop: '32px' }}>
+           <a href="/forgot-password" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
+             Forgot password? Reset Account
            </a>
         </div>
-
-        <div className="login-footer" style={{ textAlign: 'center', marginTop: '40px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <p>Bootstrap: <strong style={{ color: 'var(--text-secondary)' }}>admin@finan.com</strong> / <strong style={{ color: 'var(--text-secondary)' }}>admin</strong></p>
-        </div>
       </div>
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
