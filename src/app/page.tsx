@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <div className="login-wrapper">
-      <div className="glass-panel login-card animate-scale-in" style={{ paddingBottom: '32px' }}>
+      <div className="glass-panel login-card animate-scale-in" style={{ paddingBottom: '32px', position: 'relative', zIndex: 50 }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 className="login-brand text-gradient-blue">FinAn</h1>
           <p className="login-tagline">Enterprise Financial Intelligence</p>
@@ -56,10 +56,10 @@ export default function Home() {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '32px' }}>
-           <button type="button" onClick={() => window.location.href = '/recovery'} style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+        <div style={{ textAlign: 'center', marginTop: '32px', position: 'relative', zIndex: 100 }}>
+           <a href="/recovery" style={{ color: '#2997ff', fontSize: '14px', textDecoration: 'underline', fontWeight: 'bold' }}>
              Forgot password? Reset Account
-           </button>
+           </a>
         </div>
       </div>
     </div>
