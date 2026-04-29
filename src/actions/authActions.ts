@@ -10,51 +10,28 @@ export async function loginAction(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  if (!email || !password) {
-    return { error: 'Email and password required' }
-  }
+  if (!email || !password) return { error: 'Email and password required' }
 
-  // Bootstrap admin logic
+  // Bootstrap admin
   if (email === 'admin@finan.com' && password === 'admin') {
     let admin = await db.user.findUnique({ where: { email } })
     if (!admin) {
-      const initHashed = bcryptjs.hashSync(password, 10)
-      admin = await db.user.create({
-        data: {
-          email,
-          name: 'System Admin',
-          password: initHashed,
-          role: 'ADMIN' // ADMIN, ANALYST, BANKER
-        }
-      })
+      const hashed = bcryptjs.hashSync(password, 10)
+      await db.user.create({ data: { email, name: 'System Admin', password: hashed, role: 'ADMIN' } })
     }
   }
 
   const user = await db.user.findUnique({ where: { email } })
-  if (!user) {
-    return { error: 'Invalid credentials' }
-  }
+  if (!user || !bcryptjs.compareSync(password, user.password)) return { error: 'Invalid credentials' }
 
-  const isPasswordValid = bcryptjs.compareSync(password, user.password)
-  if (!isPasswordValid) {
-    return { error: 'Invalid credentials' }
-  }
-
-  // Set Session
-  const sessionData = { 
-    user: { id: user.id, email: user.email, name: user.name, role: user.role } 
-  }
-  const session = await encrypt(sessionData)
-  
+  const session = await encrypt({ user: { id: user.id, email: user.email, name: user.name, role: user.role } })
   const cookieStore = await cookies()
   cookieStore.set('session', session, { httpOnly: true, secure: process.env.NODE_ENV === 'production' })
 
-  // Log action
   await db.log.create({
-    data: { action: 'USER_LOGIN', userId: user.id, details: `User logged in from login portal` }
+    data: { action: 'USER_LOGIN', userId: user.id, details: `Logged in to platform` }
   })
 
-  // Redirect to respective dashboard
   if (user.role === 'ADMIN') redirect('/admin')
   if (user.role === 'ANALYST') redirect('/analyst')
   if (user.role === 'BANKER') redirect('/banker')
@@ -73,46 +50,53 @@ export async function requestPasswordReset(formData: FormData) {
   const user = await db.user.findUnique({ where: { email } });
   
   if (user) {
-    const token = Math.random().toString(36).substring(2, 15);
+    // Generate a 6-digit numeric token for the Admin Log
+    const token = Math.floor(100000 + Math.random() * 900000).toString();
     
+    // SAVE TOKEN TO ADMIN LOGS
     await db.log.create({
       data: {
-        action: 'PASSWORD_RESET_REQUEST',
+        action: 'SECURITY_TOKEN_GEN',
         userId: user.id,
-        details: `Reset link requested. Token: ${token}`
+        details: `Recovery Token generated for ${email}: [ ${token} ]`
       }
     });
 
-    // In a real app, this would be a URL like: https://yourdomain.com/reset-password?token=${token}&email=${email}
-    console.log(`\n--- [PASSWORD RESET EMAIL] ---`);
-    console.log(`To: ${email}`);
-    console.log(`Link: http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
-    console.log(`-------------------------------\n`);
+    // In a real app we'd email it. Here we just redirect to the token entry page.
+    redirect(`/forgot-password/verify?email=${encodeURIComponent(email)}`);
   }
 
-  return { success: true };
+  return { error: 'Account not found' };
 }
 
 export async function completePasswordReset(formData: FormData) {
   const email = formData.get('email') as string;
+  const token = formData.get('token') as string;
   const password = formData.get('password') as string;
-  const confirm = formData.get('confirm') as string;
 
-  if (!email || !password || !confirm) return { error: 'All fields are required' };
-  if (password !== confirm) return { error: 'Passwords do not match' };
+  if (!email || !token || !password) return { error: 'All fields required' };
   
-  const user = await db.user.findUnique({ where: { email } });
-  if (!user) return { error: 'User not found' };
+  // VERIFY TOKEN FROM LOGS
+  const lastLog = await db.log.findFirst({
+    where: { 
+        action: 'SECURITY_TOKEN_GEN',
+        details: { contains: email }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  if (!lastLog || !lastLog.details?.includes(`[ ${token} ]`)) {
+    return { error: 'Invalid or expired recovery token. Contact Admin.' };
+  }
 
   const hashed = bcryptjs.hashSync(password, 10);
-  
   await db.user.update({
     where: { email },
     data: { password: hashed }
   });
 
   await db.log.create({
-    data: { action: 'PASSWORD_RESET_COMPLETE', userId: user.id, details: `Password reset successfully via recovery portal` }
+    data: { action: 'PASSWORD_RESET_COMPLETE', userId: lastLog.userId, details: `Recovered account via Token: ${token}` }
   });
 
   return { success: true };
