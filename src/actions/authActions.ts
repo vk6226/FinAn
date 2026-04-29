@@ -36,7 +36,6 @@ export async function requestPasswordReset(formData: FormData) {
     await db.log.create({
       data: { action: 'SECURITY_TOKEN_GEN', userId: user.id, details: `Recovery Token generated for ${email}: [ ${token} ]` }
     });
-    // Returning success with email for the frontend to handle redirect
     return { success: true, email };
   }
   return { error: 'Account not found. Verify your email or contact Admin.' };
@@ -46,16 +45,34 @@ export async function completePasswordReset(formData: FormData) {
   const email = formData.get('email') as string;
   const token = formData.get('token') as string;
   const password = formData.get('password') as string;
+
   if (!email || !token || !password) return { error: 'All fields required' };
+  
+  // ULTRA-FLEXIBLE MATCHING: Look for any log for this email that contains this token
   const lastLog = await db.log.findFirst({
-    where: { action: 'SECURITY_TOKEN_GEN', details: { contains: email } },
+    where: { 
+        action: 'SECURITY_TOKEN_GEN',
+        details: { 
+            contains: email
+        }
+    },
     orderBy: { createdAt: 'desc' }
   });
+
+  // Verify the token exists in the detail string of the latest log
   if (!lastLog || !lastLog.details?.includes(token)) {
-    return { error: 'Invalid or expired recovery token. Please verify the code in Admin logs.' };
+    return { error: 'Invalid token. Please check the System Logs in the Admin Dashboard for the correct 6-digit code.' };
   }
+
   const hashed = bcryptjs.hashSync(password, 10);
-  await db.user.update({ where: { email }, data: { password: hashed } });
-  await db.log.create({ data: { action: 'PASSWORD_RESET_COMPLETE', userId: lastLog.userId, details: `Recovered account via Token: ${token}` } });
+  await db.user.update({
+    where: { email },
+    data: { password: hashed }
+  });
+
+  await db.log.create({
+    data: { action: 'PASSWORD_RESET_COMPLETE', userId: lastLog.userId, details: `Password reset successfully via recovery portal` }
+  });
+
   return { success: true };
 }

@@ -1,15 +1,20 @@
 'use client'
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { completePasswordReset } from "@/actions/authActions";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 function VerifyTokenForm() {
   const searchParams = useSearchParams();
-  const email = searchParams.get('email') || "";
+  const [email, setEmail] = useState("");
   const [status, setStatus] = useState<{ error?: string; success?: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const e = searchParams.get('email');
+    if (e) setEmail(decodeURIComponent(e));
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,8 +30,8 @@ function VerifyTokenForm() {
     return (
       <div className="animate-fade-in" style={{ textAlign: 'center' }}>
         <div style={{ background: 'rgba(48, 209, 88, 0.08)', padding: '24px', borderRadius: '8px', border: '1px solid rgba(48, 209, 88, 0.1)' }}>
-          <p style={{ color: 'var(--accent-success)', fontSize: '15px' }}>✓ Password Reset Successful</p>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '8px' }}>You can now sign in with your new credentials.</p>
+          <p style={{ color: 'var(--accent-success)', fontSize: '15px', fontWeight: 600 }}>✓ Password Reset Successful</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '8px' }}>Your account is now unlocked. Use your new password to sign in.</p>
         </div>
         <Link href="/" className="btn btn-accent" style={{ width: '100%', marginTop: '24px', display: 'inline-block', textDecoration: 'none' }}>
           Back to Login
@@ -37,9 +42,9 @@ function VerifyTokenForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-        <p className="login-tagline" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Security Verification Required</p>
-        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Enter the 6-digit token from System Log for <strong>{email}</strong></p>
+      <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+        <p className="login-tagline" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>Verify Identity</p>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Enter the token from System Logs to unlock your account.</p>
       </div>
 
       {status?.error && (
@@ -48,24 +53,27 @@ function VerifyTokenForm() {
         </div>
       )}
 
-      <input type="hidden" name="email" value={email} />
+      <div className="input-group">
+        <label className="input-label">User Email</label>
+        <input name="email" type="email" className="input-field" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
+      </div>
 
       <div className="input-group">
-        <label className="input-label">6-Digit Recovery Token</label>
+        <label className="input-label">6-Digit Token</label>
         <input name="token" type="text" className="input-field" placeholder="000000" maxLength={6} required style={{ textAlign: 'center', letterSpacing: '4px', fontSize: '1.2rem' }} />
       </div>
 
       <div className="input-group">
-        <label className="input-label">Enter New Password</label>
+        <label className="input-label">New Password</label>
         <input name="password" type="password" className="input-field" placeholder="••••••••" required />
       </div>
 
       <button type="submit" className="btn btn-accent" style={{ width: '100%', padding: '14px' }} disabled={loading}>
-        {loading ? 'Verifying...' : 'Set New Password →'}
+        {loading ? 'Validating...' : 'Unlock Account →'}
       </button>
 
       <div style={{ textAlign: 'center' }}>
-        <Link href="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none' }}>Request new token</Link>
+        <Link href="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none' }}>Back</Link>
       </div>
     </form>
   );
@@ -75,8 +83,8 @@ export default function VerifyRecoveryPage() {
   return (
     <div className="login-wrapper">
       <div className="glass-panel login-card animate-scale-in" style={{ maxWidth: '440px' }}>
-        <h1 className="login-brand text-gradient-blue" style={{ textAlign: 'center' }}>Verify Token</h1>
-        <Suspense fallback={<div style={{ textAlign: 'center' }}>Loading...</div>}>
+        <h1 className="login-brand text-gradient-blue" style={{ textAlign: 'center' }}>Unlock Account</h1>
+        <Suspense fallback={<div style={{ textAlign: 'center' }}>Initializing...</div>}>
           <VerifyTokenForm />
         </Suspense>
       </div>

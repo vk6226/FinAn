@@ -56,6 +56,7 @@ export default function Home() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
+           {/* ABSOLUTE LINK TO CONSOLIDATED FOLDER */}
            <a href="/forgot-password" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
              Forgot password? Reset Account
            </a>
