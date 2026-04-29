@@ -65,3 +65,55 @@ export async function logoutAction() {
     cookieStore.set('session', '', { expires: new Date(0) })
     redirect('/')
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  const email = formData.get('email') as string;
+  if (!email) return { error: 'Email is required' };
+
+  const user = await db.user.findUnique({ where: { email } });
+  
+  if (user) {
+    const token = Math.random().toString(36).substring(2, 15);
+    
+    await db.log.create({
+      data: {
+        action: 'PASSWORD_RESET_REQUEST',
+        userId: user.id,
+        details: `Reset link requested. Token: ${token}`
+      }
+    });
+
+    // In a real app, this would be a URL like: https://yourdomain.com/reset-password?token=${token}&email=${email}
+    console.log(`\n--- [PASSWORD RESET EMAIL] ---`);
+    console.log(`To: ${email}`);
+    console.log(`Link: http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
+    console.log(`-------------------------------\n`);
+  }
+
+  return { success: true };
+}
+
+export async function completePasswordReset(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const confirm = formData.get('confirm') as string;
+
+  if (!email || !password || !confirm) return { error: 'All fields are required' };
+  if (password !== confirm) return { error: 'Passwords do not match' };
+  
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user) return { error: 'User not found' };
+
+  const hashed = bcryptjs.hashSync(password, 10);
+  
+  await db.user.update({
+    where: { email },
+    data: { password: hashed }
+  });
+
+  await db.log.create({
+    data: { action: 'PASSWORD_RESET_COMPLETE', userId: user.id, details: `Password reset successfully via recovery portal` }
+  });
+
+  return { success: true };
+}

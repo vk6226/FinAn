@@ -21,7 +21,6 @@ export default function Home() {
 
   return (
     <div className="login-wrapper" suppressHydrationWarning>
-      {/* Background decorative orbs */}
       <div style={{
         position: 'absolute', top: '15%', left: '10%',
         width: '300px', height: '300px', borderRadius: '50%',
@@ -35,7 +34,7 @@ export default function Home() {
         filter: 'blur(60px)', pointerEvents: 'none',
       }} />
 
-      <div className="glass-panel login-card animate-scale-in">
+      <div className="glass-panel login-card animate-scale-in" style={{ paddingBottom: '32px' }}>
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <h1 className="login-brand text-gradient-blue">FinAn</h1>
           <p className="login-tagline">Enterprise Financial Intelligence</p>
@@ -65,25 +64,22 @@ export default function Home() {
           </div>
 
           <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '8px', padding: '14px' }} disabled={loading} suppressHydrationWarning>
-            {loading ? (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)',
-                  borderTopColor: '#fff', borderRadius: '50%',
-                  animation: 'spin 0.6s linear infinite', display: 'inline-block',
-                }} />
-                Authenticating...
-              </span>
-            ) : 'Sign In →'}
+            {loading ? 'Authenticating...' : 'Sign In →'}
           </button>
         </form>
 
-        <div className="login-footer" style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+           {/* Using standard <a> instead of <Link> to force browser navigation if router is hanging */}
+           <a href="/forgot-password" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 500 }}>
+             Forgot your password? Recover Account
+           </a>
+        </div>
+
+        <div className="login-footer" style={{ textAlign: 'center', marginTop: '40px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <p>Bootstrap: <strong style={{ color: 'var(--text-secondary)' }}>admin@finan.com</strong> / <strong style={{ color: 'var(--text-secondary)' }}>admin</strong></p>
         </div>
       </div>
 
-      {/* Spinning loader keyframe */}
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
