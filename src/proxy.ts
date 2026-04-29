@@ -9,9 +9,9 @@ export async function proxy(request: NextRequest) {
   const session = request.cookies.get('session')?.value
   const { pathname } = request.nextUrl
 
-  // No session — allow the login page, block everything else
+  // No session — allow the login page and recovery page, block everything else
   if (!session) {
-    if (pathname === '/') return NextResponse.next()
+    if (pathname === '/' || pathname === '/recovery') return NextResponse.next()
     return NextResponse.redirect(new URL('/', request.url))
   }
 
