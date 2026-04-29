@@ -11,7 +11,7 @@ export async function proxy(request: NextRequest) {
 
   // No session — allow the login page and recovery page, block everything else
   if (!session) {
-    if (pathname === '/' || pathname === '/recovery') return NextResponse.next()
+    if (pathname === '/' || pathname.startsWith('/recovery')) return NextResponse.next()
     return NextResponse.redirect(new URL('/', request.url))
   }
 
