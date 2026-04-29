@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { loginAction } from "@/actions/authActions";
+import Link from 'next/link';
 
 export default function Home() {
   const [error, setError] = useState<string | null>(null);
@@ -56,9 +57,9 @@ export default function Home() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
-           <a href="/recovery" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
+           <Link href="/recovery" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
              Forgot password? Reset Account
-           </a>
+           </Link>
         </div>
       </div>
     </div>
