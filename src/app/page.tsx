@@ -57,9 +57,9 @@ export default function Home() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '32px' }}>
-           <Link href="/recovery" style={{ color: 'var(--accent-primary)', fontSize: '13px', textDecoration: 'none', fontWeight: 600 }}>
+           <button type="button" onClick={() => window.location.href = '/recovery'} style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0 }}>
              Forgot password? Reset Account
-           </Link>
+           </button>
         </div>
       </div>
     </div>
