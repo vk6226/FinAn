@@ -57,10 +57,30 @@ export default function Home() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '32px', position: 'relative', zIndex: 100 }}>
-           <a href="/recovery" style={{ color: '#2997ff', fontSize: '14px', textDecoration: 'underline', fontWeight: 'bold' }}>
-             Forgot password? Reset Account
-           </a>
+          <button 
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              alert("Routing you securely to the Recovery Portal!");
+              window.location.assign('/recovery');
+            }}
+            style={{ 
+              background: 'rgba(41, 151, 255, 0.1)', 
+              border: '1px solid #2997ff', 
+              color: '#2997ff', 
+              fontSize: '15px', 
+              fontWeight: 'bold', 
+              padding: '12px 24px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              width: '100%',
+              display: 'block'
+            }}
+          >
+            🚨 FORGOT PASSWORD? CLICK HERE 🚨
+          </button>
         </div>
+
       </div>
     </div>
   );
