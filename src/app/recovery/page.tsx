@@ -4,7 +4,7 @@ import { useState } from "react";
 import { requestPasswordReset } from "@/actions/authActions";
 import { useRouter } from "next/navigation";
 
-export default function ForgotPasswordPage() {
+export default function RecoveryPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -19,9 +19,9 @@ export default function ForgotPasswordPage() {
     if (res?.error) {
       setError(res.error);
       setLoading(false);
-    } else if (res?.success) {
-      // BROWSER-SIDE REDIRECT (Much more stable)
-      router.push(`/forgot-password/verify?email=${encodeURIComponent(res.email as string)}`);
+    } else if (res?.success && res.redirectPath) {
+      // Navigating to the verification screen via browser router
+      router.push(res.redirectPath);
     } else {
       setLoading(false);
     }
@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
     <div className="login-wrapper">
       <div className="glass-panel login-card animate-scale-in" style={{ maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 className="login-brand text-gradient-blue">Account Recovery</h1>
+          <h1 className="login-brand text-gradient-blue">Recovery</h1>
           <p className="login-tagline">Identify your account to generate a security token.</p>
         </div>
 
@@ -43,12 +43,12 @@ export default function ForgotPasswordPage() {
           )}
           
           <div className="input-group">
-            <label className="input-label">Username / Email</label>
+            <label className="input-label">User Email</label>
             <input name="email" type="email" className="input-field" placeholder="your-email@company.com" required />
           </div>
 
           <button type="submit" className="btn btn-accent" style={{ width: '100%', padding: '14px' }} disabled={loading}>
-            {loading ? 'Validating Account...' : 'Continue to Verification →'}
+            {loading ? 'Consulting security logs...' : 'Request Token →'}
           </button>
           
           <div style={{ textAlign: 'center', marginTop: '24px' }}>
