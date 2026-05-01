@@ -8,7 +8,13 @@ export async function GET() {
     return NextResponse.json({ error: 'POSTGRES_URL is not set!' });
   }
 
-  const prisma = new PrismaClient({ datasourceUrl: postgresUrl });
+  // Force pgbouncer=true for Supabase transaction pooler
+  const u = new URL(postgresUrl);
+  u.searchParams.set('pgbouncer', 'true');
+  u.searchParams.set('connection_limit', '1');
+  const connectionUrl = u.toString();
+
+  const prisma = new PrismaClient({ datasourceUrl: connectionUrl });
 
   try {
     const userCount = await prisma.user.count();
