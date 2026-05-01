@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
+// Use connection_limit=1 and pgbouncer=true to fix prepared statement errors with Supabase pooler
+const connectionUrl = process.env.POSTGRES_URL + '&connection_limit=1';
+const prisma = new PrismaClient({
+  datasourceUrl: connectionUrl,
+});
 
 export async function GET() {
   try {
