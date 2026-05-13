@@ -15,12 +15,12 @@ async function fetchCompanyData(ticker: string) {
       quote: quote.status === 'fulfilled' ? (quote.value as any) : null,
       summary: summary.status === 'fulfilled' ? (summary.value as any) : null,
     };
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }
 
-function formatFinancialData(data: any, ticker: string): string {
+function formatFinancialData(data: Record<string, unknown> | null, ticker: string): string {
   if (!data || (!data.quote && !data.summary)) return `No data found for ${ticker}.`;
   
   const q = data.quote;
@@ -86,7 +86,8 @@ ${financialContext || 'No real-time data found.'}
 INSTRUCTIONS:
 - Report all monetary values in Indian Rupees (₹).
 - Use Cr (Crores) or B (Billions) for large figures as provided in context.
-- Mention "Yahoo Finance (Live)" for specific data points.`;
+- Mention "Yahoo Finance (Live)" for specific data points.
+- Do NOT use emojis in your response. Keep the tone professional.`;
 
     const mistralRes = await fetch('https://api.mistral.ai/v1/chat/completions', {
       method: 'POST',
@@ -97,7 +98,7 @@ INSTRUCTIONS:
           { role: 'system', content: systemPrompt },
           ...(history || []).map((h: any) => ({
             role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
-            content: h.parts?.[0]?.text || h.content || ''
+            content: (h as { content?: string }).content || ''
           })).slice(-6),
           { role: 'user', content: message }
         ],

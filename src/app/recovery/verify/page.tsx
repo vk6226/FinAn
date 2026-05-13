@@ -13,6 +13,7 @@ function VerifyRecoveryForm() {
 
   useEffect(() => {
     const e = searchParams.get('email');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (e) setEmail(decodeURIComponent(e));
   }, [searchParams]);
 

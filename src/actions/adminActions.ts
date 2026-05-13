@@ -28,8 +28,8 @@ export async function createUser(formData: FormData) {
 
     revalidatePath('/admin')
     return { success: true }
-  } catch (err: any) {
-    if (err.code === 'P2002') return { error: 'Email already exists' }
+  } catch (err: unknown) {
+    if (typeof err === 'object' && err !== null && 'code' in err && err.code === 'P2002') return { error: 'Email already exists' }
     return { error: 'Failed to create user' }
   }
 }

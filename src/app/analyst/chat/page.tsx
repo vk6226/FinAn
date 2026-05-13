@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, JSX } from 'react';
 import { logoutAction } from '@/actions/authActions';
 
 interface Message {
@@ -24,7 +24,7 @@ export default function FinancialChatPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `## Welcome to FinAn AI 🤖\n\nI am your AI-powered financial analyst, connected to **live Yahoo Finance data**.\n\nYou can ask me about:\n- 📊 Revenue, EBITDA, Free Cash Flow (Converted to ₹)\n- 📈 Valuation metrics (P/E, P/B, EV/EBITDA)\n- 🏦 Balance sheet — debt, cash, assets\n- 📉 Stock price, 52-week range, market cap\n\nAll financial values are automatically converted to **Indian Rupees (₹)** for your convenience!`,
+      content: `## Welcome to FinAn Intelligent Engine\n\nI am your automated financial analyst, connected to **live Yahoo Finance data**.\n\nYou can ask me about:\n- Revenue, EBITDA, Free Cash Flow (Converted to ₹)\n- Valuation metrics (P/E, P/B, EV/EBITDA)\n- Balance sheet — debt, cash, assets\n- Stock price, 52-week range, market cap\n\nAll financial values are automatically converted to **Indian Rupees (₹)** for your convenience!`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -71,7 +71,7 @@ export default function FinancialChatPage() {
           hasLiveData: data.hasLiveData,
         }]);
       }
-    } catch (err) {
+    } catch (_err) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Network error. Please try again.' }]);
     }
     setLoading(false);
@@ -128,7 +128,7 @@ export default function FinancialChatPage() {
           </Link>
           <Link href="/analyst/chat" className="sidebar-link active">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-            AI Financial Assistant
+            Intelligent Analysis Engine
           </Link>
         </nav>
         <div className="sidebar-footer">
@@ -149,9 +149,9 @@ export default function FinancialChatPage() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px'
             }}>🤖</div>
             <div>
-              <h1 className="text-gradient" style={{ fontSize: '22px' }}>AI Financial Assistant</h1>
+              <h1 className="text-gradient" style={{ fontSize: '22px' }}>Intelligent Analysis Engine</h1>
               <p style={{ margin: 0, fontSize: '13px' }}>
-                Powered by <strong>Mistral AI</strong> · Real-time data converted to <strong>Rupees (₹)</strong>
+                Real-time data processing converted to <strong>Rupees (₹)</strong>
               </p>
             </div>
           </div>
