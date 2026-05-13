@@ -6,50 +6,7 @@ const secretKey = 'finan_auth_secret_secure_9922';
 const key = new TextEncoder().encode(secretKey);
 
 export async function proxy(request: NextRequest) {
-  const session = request.cookies.get('session')?.value
-  const { pathname } = request.nextUrl
-
-  // No session — allow the login page and recovery page, block everything else
-  if (!session) {
-    if (pathname === '/' || pathname.startsWith('/recovery')) return NextResponse.next()
-    return NextResponse.redirect(new URL('/', request.url))
-  }
-
-  // Has a session cookie — validate it
-  try {
-    const { payload } = await jwtVerify(session, key, { algorithms: ['HS256'] })
-    const user = payload.user as { role: string }
-
-    // Role-based routing protection
-    if (pathname.startsWith('/admin') && user.role !== 'ADMIN') {
-       return NextResponse.redirect(new URL('/', request.url))
-    }
-    if (pathname.startsWith('/analyst') && user.role !== 'ANALYST') {
-       return NextResponse.redirect(new URL('/', request.url))
-    }
-    if (pathname.startsWith('/banker') && user.role !== 'BANKER') {
-       return NextResponse.redirect(new URL('/', request.url))
-    }
-
-    // If on root and already logged in, go to the correct dashboard
-    if (pathname === '/') {
-        if (user.role === 'ADMIN') return NextResponse.redirect(new URL('/admin', request.url))
-        if (user.role === 'ANALYST') return NextResponse.redirect(new URL('/analyst', request.url))
-        if (user.role === 'BANKER') return NextResponse.redirect(new URL('/banker', request.url))
-    }
-
-    return NextResponse.next()
-  } catch (err) {
-    // If already on the login page, just let them through and clear the cookie
-    if (pathname === '/') {
-        const response = NextResponse.next()
-        response.cookies.set('session', '', { expires: new Date(0), path: '/' })
-        return response
-    }
-    const response = NextResponse.redirect(new URL('/', request.url))
-    response.cookies.set('session', '', { expires: new Date(0), path: '/' })
-    return response
-  }
+  return NextResponse.next()
 }
 
 export const config = {
