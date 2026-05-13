@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const secretKey = 'finan-super-secret-development-key';
+const secretKey = 'finan_auth_secret_secure_9922';
 const key = new TextEncoder().encode(secretKey);
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')?.value
   const { pathname } = request.nextUrl
 

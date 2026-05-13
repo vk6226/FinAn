@@ -13,7 +13,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
-    const res = await loginAction(formData) as any;
+    const res = await loginAction(formData) as { error?: string; success?: boolean };
     if (res?.error) {
       setError(res.error);
     }
