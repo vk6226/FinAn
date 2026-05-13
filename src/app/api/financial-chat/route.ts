@@ -3,7 +3,12 @@ import yahooFinance from 'yahoo-finance2';
 
 const USD_TO_INR = 83.5; // Fixed conversion rate for presentation
 
-async function fetchCompanyData(ticker: string) {
+interface FinancialData {
+  quote: any;
+  summary: any;
+}
+
+async function fetchCompanyData(ticker: string): Promise<FinancialData | null> {
   try {
     const [quote, summary] = await Promise.allSettled([
       yahooFinance.quote(ticker),
@@ -12,24 +17,23 @@ async function fetchCompanyData(ticker: string) {
       }),
     ]);
     return {
-      quote: quote.status === 'fulfilled' ? (quote.value as any) : null,
-      summary: summary.status === 'fulfilled' ? (summary.value as any) : null,
+      quote: quote.status === 'fulfilled' ? quote.value : null,
+      summary: summary.status === 'fulfilled' ? summary.value : null,
     };
   } catch (_err) {
     return null;
   }
 }
 
-function formatFinancialData(data: Record<string, unknown> | null, ticker: string): string {
+function formatFinancialData(data: FinancialData | null, ticker: string): string {
   if (!data || (!data.quote && !data.summary)) return `No data found for ${ticker}.`;
   
   const q = data.quote;
   const s = data.summary;
   const lines: string[] = [];
   
-  // Detection for conversion
   const isUSD = q?.currency === 'USD';
-  const convert = (val: number | undefined) => {
+  const convert = (val: number | undefined | null) => {
     if (val === undefined || val === null) return 'N/A';
     const finalVal = isUSD ? val * USD_TO_INR : val;
     if (finalVal > 1e9) return `₹${(finalVal / 1e9).toFixed(2)}B`;
@@ -60,6 +64,10 @@ export async function POST(req: NextRequest) {
     const { message, history } = body;
     const apiKey = process.env.MISTRAL_API_KEY;
 
+    if (!apiKey) {
+      return NextResponse.json({ response: "AI Engine error: Missing API Key. Please check environment variables." }, { status: 200 });
+    }
+
     const companyToTicker: Record<string, string> = {
       apple: 'AAPL', microsoft: 'MSFT', google: 'GOOGL', tesla: 'TSLA', nvidia: 'NVDA',
       patanjali: 'PATANJALI.NS', reliance: 'RELIANCE.NS', tcs: 'TCS.NS', infosys: 'INFY.NS',
@@ -67,7 +75,7 @@ export async function POST(req: NextRequest) {
     };
 
     let resolvedTicker = '';
-    const cleanWords = message.toLowerCase().replace(/[?!.,]/g, '').split(/\s+/);
+    const cleanWords = (message || "").toLowerCase().replace(/[?!.,]/g, '').split(/\s+/);
     for (const word of cleanWords) {
       if (companyToTicker[word]) { resolvedTicker = companyToTicker[word]; break; }
       if (word.includes('.')) resolvedTicker = word.toUpperCase();
@@ -79,7 +87,7 @@ export async function POST(req: NextRequest) {
       financialContext = formatFinancialData(data, resolvedTicker);
     }
 
-    const systemPrompt = `You are FinAn AI.
+    const systemPrompt = `You are the FinAn Intelligent Analysis Engine.
 CONTEXT DATA (ALL VALUES IN RUPEES ₹):
 ${financialContext || 'No real-time data found.'}
 
@@ -96,23 +104,31 @@ INSTRUCTIONS:
         model: 'open-mistral-7b',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...(history || []).map((h: any) => ({
-            role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
-            content: (h as { content?: string }).content || ''
-          })).slice(-6),
+          ...(history || []).map((h: any) => {
+            const content = h.content || h.parts?.[0]?.text || "";
+            return {
+              role: h.role === 'model' || h.role === 'assistant' ? 'assistant' : 'user',
+              content: content || " " // Ensure it's never empty
+            };
+          }).slice(-6),
           { role: 'user', content: message }
         ],
       }),
     });
 
+    if (!mistralRes.ok) {
+      const errData = await mistralRes.json();
+      return NextResponse.json({ response: `AI Engine error: ${errData.message || 'Mistral API failed'}` }, { status: 200 });
+    }
+
     const data = await mistralRes.json();
     return NextResponse.json({ 
-      response: data.choices[0].message.content,
+      response: data.choices?.[0]?.message?.content || "No response received from engine.",
       ticker: resolvedTicker,
       hasLiveData: !!financialContext
     });
 
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ response: "System error: " + (err.message || "Unknown error") }, { status: 200 });
   }
 }
