@@ -40,8 +40,12 @@ export async function proxy(request: NextRequest) {
 
     return NextResponse.next()
   } catch (err) {
-    // JWT is expired or invalid — clear the stale cookie then send to login
-    // Without clearing it, the browser keeps resending the bad cookie → infinite redirect loop
+    // If already on the login page, just let them through and clear the cookie
+    if (pathname === '/') {
+        const response = NextResponse.next()
+        response.cookies.set('session', '', { expires: new Date(0), path: '/' })
+        return response
+    }
     const response = NextResponse.redirect(new URL('/', request.url))
     response.cookies.set('session', '', { expires: new Date(0), path: '/' })
     return response
