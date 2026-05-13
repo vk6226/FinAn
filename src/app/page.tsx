@@ -1,11 +1,24 @@
 'use client'
 
-import { useActionState } from "react";
+import { useState } from "react";
 import { loginAction } from "@/actions/authActions";
 import Link from 'next/link';
 
 export default function Home() {
-  const [state, formAction, isPending] = useActionState(loginAction, null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    const res = await loginAction(formData) as { error?: string; success?: boolean };
+    if (res?.error) {
+      setError(res.error);
+    }
+    setLoading(false);
+  }
 
   return (
     <div className="login-wrapper">
@@ -15,7 +28,7 @@ export default function Home() {
           <p className="login-tagline">Enterprise Financial Intelligence</p>
         </div>
 
-        {state?.error && (
+        {error && (
           <div className="animate-fade-in" style={{
             color: 'var(--accent-danger)',
             background: 'rgba(255, 69, 58, 0.08)',
@@ -25,10 +38,10 @@ export default function Home() {
             marginBottom: '24px',
             fontSize: '14px',
             textAlign: 'center',
-          }}>{state.error}</div>
+          }}>{error}</div>
         )}
 
-        <form action={formAction} style={{ display: 'flex', flexDirection: 'column' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="input-group">
             <label className="input-label">Email Address</label>
             <input name="email" type="email" className="input-field" placeholder="admin@finan.com" required />
@@ -38,8 +51,8 @@ export default function Home() {
             <input name="password" type="password" className="input-field" placeholder="••••••••" required />
           </div>
 
-          <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '8px', padding: '14px' }} disabled={isPending}>
-            {isPending ? 'Authenticating...' : 'Sign In →'}
+          <button type="submit" className="btn btn-accent" style={{ width: '100%', marginTop: '8px', padding: '14px' }} disabled={loading}>
+            {loading ? 'Authenticating...' : 'Sign In →'}
           </button>
         </form>
 
