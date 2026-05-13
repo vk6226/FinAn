@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const secretKey = 'finan-super-secret-development-key'; // Fixed for demo purposes
+const secretKey = 'finan_auth_secret_secure_9922'; 
 const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {
