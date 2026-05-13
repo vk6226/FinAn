@@ -5,7 +5,7 @@ import { jwtVerify } from 'jose'
 const secretKey = 'finan_auth_secret_secure_9922';
 const key = new TextEncoder().encode(secretKey);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const session = request.cookies.get('session')?.value
   const { pathname } = request.nextUrl
 
