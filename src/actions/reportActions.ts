@@ -89,7 +89,7 @@ function calculateFullModelData(formData: FormData) {
     combinedRevenue: companyA_revenue + companyB_revenue + revSyn, combinedEbitda: companyA_ebitda + companyB_ebitda + costSyn + revSyn,
     // Store Inputs
     priceB: companyB_price, sharesB: companyB_shares, revB: companyB_revenue, ebitdaB: companyB_ebitda, netIncomeB: companyB_netIncome, netDebtB: companyB_netDebt,
-    premium: premium * 100, cashPct: cashPct * 100, costSynergies: costSyn, revenueSynergies: revSyn, integrationCosts: intCosts, debtRate: debtRate * 100
+    premium: premium * 100, dealPremium: premium * 100, cashPct: cashPct * 100, costSynergies: costSyn, revenueSynergies: revSyn, integrationCosts: intCosts, debtRate: debtRate * 100
   };
 
   return { title: `${companyA_name} & ${companyB_name} M&A`, companyA: companyA_name, companyB: companyB_name, dcfData, maData };
