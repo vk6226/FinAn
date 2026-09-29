@@ -56,6 +56,17 @@ export default function Home() {
           </button>
         </form>
 
+        <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+            OR TRY A DEMO ACCOUNT
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => { (document.querySelector('input[name="email"]') as HTMLInputElement).value = 'admin@finan.com'; (document.querySelector('input[name="password"]') as HTMLInputElement).value = 'demo123'; (document.querySelector('input[name="email"]') as HTMLInputElement).closest('form')?.requestSubmit(); }} type="button" className="btn" style={{ flex: 1, padding: '8px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>Admin</button>
+            <button onClick={() => { (document.querySelector('input[name="email"]') as HTMLInputElement).value = 'analyst@finan.com'; (document.querySelector('input[name="password"]') as HTMLInputElement).value = 'demo123'; (document.querySelector('input[name="email"]') as HTMLInputElement).closest('form')?.requestSubmit(); }} type="button" className="btn" style={{ flex: 1, padding: '8px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>Analyst</button>
+            <button onClick={() => { (document.querySelector('input[name="email"]') as HTMLInputElement).value = 'banker@finan.com'; (document.querySelector('input[name="password"]') as HTMLInputElement).value = 'demo123'; (document.querySelector('input[name="email"]') as HTMLInputElement).closest('form')?.requestSubmit(); }} type="button" className="btn" style={{ flex: 1, padding: '8px', fontSize: '13px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>Banker</button>
+          </div>
+        </div>
+
         <div style={{ textAlign: 'center', marginTop: '32px', position: 'relative', zIndex: 100 }}>
           <Link href="/recovery" style={{
             display: 'inline-block',
