@@ -12,12 +12,17 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const formData = new FormData(e.currentTarget);
-    const res = await loginAction(formData) as { error?: string; success?: boolean };
-    if (res?.error) {
-      setError(res.error);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const res = await loginAction(formData) as { error?: string; success?: boolean };
+      if (res?.error) {
+        setError(res.error);
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Authentication error. Please check database connection.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (

@@ -7,18 +7,28 @@ import bcryptjs from 'bcryptjs'
 import { redirect } from 'next/navigation'
 
 export async function loginAction(formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  if (!email || !password) return { error: 'Email and password required' }
-  const user = await db.user.findUnique({ where: { email } })
-  if (!user || !bcryptjs.compareSync(password, user.password)) return { error: 'Invalid credentials' }
-  const session = await encrypt({ user: { id: user.id, email: user.email, name: user.name, role: user.role } })
-  const cookieStore = await cookies()
-  cookieStore.set('session', session, { httpOnly: true, secure: process.env.NODE_ENV === 'production' })
-  await db.log.create({ data: { action: 'USER_LOGIN', userId: user.id, details: `Logged in to platform` } })
-  if (user.role === 'ADMIN') redirect('/admin')
-  if (user.role === 'ANALYST') redirect('/analyst')
-  if (user.role === 'BANKER') redirect('/banker')
+  try {
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    if (!email || !password) return { error: 'Email and password required' }
+    if (!process.env.POSTGRES_URL) {
+      return { error: 'Database error: POSTGRES_URL environment variable is not configured.' }
+    }
+    const user = await db.user.findUnique({ where: { email } })
+    if (!user || !bcryptjs.compareSync(password, user.password)) return { error: 'Invalid credentials' }
+    const session = await encrypt({ user: { id: user.id, email: user.email, name: user.name, role: user.role } })
+    const cookieStore = await cookies()
+    cookieStore.set('session', session, { httpOnly: true, secure: process.env.NODE_ENV === 'production' })
+    await db.log.create({ data: { action: 'USER_LOGIN', userId: user.id, details: `Logged in to platform` } })
+    if (user.role === 'ADMIN') redirect('/admin')
+    if (user.role === 'ANALYST') redirect('/analyst')
+    if (user.role === 'BANKER') redirect('/banker')
+  } catch (err: any) {
+    if (err?.message === 'NEXT_REDIRECT' || err?.digest?.startsWith('NEXT_REDIRECT')) {
+      throw err;
+    }
+    return { error: 'Database connection failed. Please ensure the database is running and reachable.' };
+  }
 }
 
 export async function logoutAction() {
